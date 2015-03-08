@@ -1,8 +1,9 @@
 #Libraries to be used
 
-library(pryr)
-library(lubridate)
-library(ggplot2)
+library(pryr)           # Needed to check size ob an object
+library(lubridate)      # Needed with working with Dates
+library(ggplot2)        # Neede++d for plotting
+library(sqldf)          # Needed to read data using sql commands
 
 # Setting up Working Directory. The directory contains the unzipped text file we are going to use
 setwd("~/Documents/Scientific Data/Exploratory Data")
@@ -12,11 +13,11 @@ setwd("~/Documents/Scientific Data/Exploratory Data")
 # Check space in memory
 object_size("household_power_consumption.txt")  # 120 B
 
+file <- c("household_power_consumption.txt")
+
 # Load data into R object
-Data<-read.table("household_power_consumption.txt", header = TRUE, sep = ";", 
-                 dec = ".",na.strings = "?",
-                 comment.char = "",
-                 colClasses=c(rep("character",2),rep("numeric",7)))
+# Reading subset data with desired dates with SQL statement into the data frame Data
+Data <- read.csv.sql(file, sql = 'select * from file where Date = "1/2/2007" OR Date = "2/2/2007"',  header = TRUE, sep = ";")
 
 object_size(Data)
 
@@ -24,9 +25,12 @@ object_size(Data)
 Data$Date<-dmy(Data$Date)
 Data$Time<-hms(Data$Time)
 
-# read only the data from the dates 2007-02-01 and 2007-02-02
-dates<-(Data$Date == dmy("02-02-2007") | Data$Date == dmy("01-02-2007"))
-Data<-Data[dates,]
+object_size(Data)     
+
+#convert the Date and Time variables to Date/Time classes
+Data$Date<-dmy(Data$Date)
+Data$Time<-hms(Data$Time)
+
 
 #================================== MAKING PLOTS====================================================
 # Open graphic device
